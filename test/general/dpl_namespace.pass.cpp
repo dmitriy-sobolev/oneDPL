@@ -23,6 +23,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "../support/utils.h"
+
 namespace sycl = cl::sycl;
 
 int main()
@@ -42,17 +44,17 @@ int main()
     auto zip_first = dpl::make_zip_iterator(counting_first, key_first);
 
     // key_buf = {0,0,...0,1,1,...,1}
-    std::for_each(dpl::execution::make_device_policy<class ForEach>(dpl::execution::dpcpp_default),
-		zip_first, zip_first + n,
+    std::for_each(TestUtils::make_new_policy<class ForEach>(TestUtils::default_dpcpp_policy),
+    zip_first, zip_first + n,
         [](std::tuple<T, T> x){
             std::get<1>(x) = (2 * std::get<0>(x)) / n;
         });
     // val_buf = {0,1,2,...,n-1}
-    std::transform(dpl::execution::make_device_policy<class Transform>(dpl::execution::dpcpp_default),
-		counting_first, counting_first + n, val_first, dpl::identity());
+    std::transform(TestUtils::make_new_policy<class Transform>(TestUtils::default_dpcpp_policy),
+    counting_first, counting_first + n, val_first, dpl::identity());
     auto result = dpl::inclusive_scan_by_segment(
-		dpl::execution::make_device_policy<class Scan>(dpl::execution::dpcpp_default),
-		key_first, key_first + n, val_first, res_first);
+    TestUtils::make_new_policy<class Scan>(TestUtils::default_dpcpp_policy),
+    key_first, key_first + n, val_first, res_first);
 
     if (result - res_first != k){
         std::cout << "size of keys output is not valid: expected = "<< k <<", got: "<< result - res_first << std::endl;

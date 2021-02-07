@@ -19,6 +19,7 @@
 #include "oneapi/dpl/iterator"
 
 #include "../../../support/pstl_test_config.h"
+#include "../../../support/utils.h"
 
 #include <iostream>
 #include <iomanip>
@@ -80,8 +81,8 @@ void test_with_buffers()
     auto val_res_beg = oneapi::dpl::begin(val_res_buf);
 
     // create named policy from existing one
-    auto new_policy = oneapi::dpl::execution::make_device_policy<class ReduceBySegment>(
-        oneapi::dpl::execution::dpcpp_default);
+    auto new_policy = TestUtils::make_new_policy<class ReduceBySegment>(
+        TestUtils::default_dpcpp_policy);
 
     // call algorithm
     auto res1 = oneapi::dpl::reduce_by_segment(new_policy, key_beg, key_end, val_beg, key_res_beg, val_res_beg);
@@ -152,7 +153,7 @@ void test_with_usm()
     val_head[12] = 0;
 
     // call algorithm
-    auto new_policy = oneapi::dpl::execution::make_device_policy(q);
+    auto new_policy = TestUtils::make_new_policy(q);
     auto res1 = oneapi::dpl::reduce_by_segment(new_policy, key_head, key_head + n, val_head, key_res_head, val_res_head);
 
     // check values
@@ -179,7 +180,7 @@ void test_with_usm()
     key_res_head[0] = 9;
     val_res_head[0] = 9;
 
-    auto new_policy2 = oneapi::dpl::execution::make_device_policy(q);
+    auto new_policy2 = TestUtils::make_new_policy(q);
     auto res2 = oneapi::dpl::reduce_by_segment(new_policy2, key_head, key_head + 1, val_head, key_res_head, val_res_head);
 
     // check values

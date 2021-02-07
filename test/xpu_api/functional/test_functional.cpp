@@ -119,7 +119,7 @@ int main() {
         auto result_it = oneapi::dpl::begin(dst_buf);
 
         // create named policy from existing one
-        auto new_policy = oneapi::dpl::execution::make_device_policy<class IdentX>(oneapi::dpl::execution::dpcpp_default);
+        auto new_policy = TestUtils::make_new_policy<class IdentX>(TestUtils::default_dpcpp_policy);
 
         auto t = std::copy_if( new_policy, data_it, data_end_it, result_it, oneapi::dpl::identity() );
 
@@ -136,7 +136,7 @@ int main() {
         cl::sycl::buffer<T, 1> src_buf{ cl::sycl::range<1>(8) };
         cl::sycl::buffer<T, 1> dst_buf{ cl::sycl::range<1>(8) };
 
-        {   
+        {
             auto src = src_buf.template get_access<cl::sycl::access::mode::write>();
             auto dst = dst_buf.template get_access<cl::sycl::access::mode::write>();
             src[0] = -3; src[1] = 1; src[2] = 4; src[3] = -1; src[4] = 5; src[5] = 9; src[6] = -2; src[7] = 6;
@@ -146,12 +146,12 @@ int main() {
         auto dst_it = oneapi::dpl::begin(dst_buf);
         auto src_it = oneapi::dpl::begin(src_buf);
         auto src_end_it = oneapi::dpl::end(src_buf);
-        
+
         // create named policy from existing one
-        auto new_policy = oneapi::dpl::execution::make_device_policy<class MaxX>(oneapi::dpl::execution::dpcpp_default);
+        auto new_policy = TestUtils::make_new_policy<class MaxX>(TestUtils::default_dpcpp_policy);
         // call algorithm:
         std::exclusive_scan(new_policy, src_it, src_end_it, dst_it, T(0), oneapi::dpl::maximum<T>());
-        
+
         auto dst = dst_buf.template get_access<cl::sycl::access::mode::read>();
         ASSERT_EQUAL(dst[0], 0);
         ASSERT_EQUAL(dst[1], 0);
@@ -170,8 +170,8 @@ int main() {
         // create buffer
         cl::sycl::buffer<T, 1> src_buf{ cl::sycl::range<1>(8) };
         cl::sycl::buffer<T, 1> dst_buf{ cl::sycl::range<1>(8) };
-    
-        {   
+
+        {
             auto src = src_buf.template get_access<cl::sycl::access::mode::write>();
             auto dst = dst_buf.template get_access<cl::sycl::access::mode::write>();
 
@@ -184,10 +184,10 @@ int main() {
         auto src_end_it = oneapi::dpl::end(src_buf);
 
         // create named policy from existing one
-        auto new_policy = oneapi::dpl::execution::make_device_policy<class MinX>(oneapi::dpl::execution::dpcpp_default);
+        auto new_policy = TestUtils::make_new_policy<class MinX>(TestUtils::default_dpcpp_policy);
         // call algorithm:
         std::exclusive_scan(new_policy, src_it, src_end_it, dst_it, T(0), oneapi::dpl::minimum<T>());
-    
+
         auto dst = dst_buf.template get_access<cl::sycl::access::mode::read>();
         ASSERT_EQUAL(dst[0], 0);
         ASSERT_EQUAL(dst[1], 0);

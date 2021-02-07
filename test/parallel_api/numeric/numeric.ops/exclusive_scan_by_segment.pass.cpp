@@ -18,6 +18,7 @@
 #include "oneapi/dpl/iterator"
 
 #include "../../../support/pstl_test_config.h"
+#include "../../../support/utils.h"
 
 #include <iostream>
 #include <iomanip>
@@ -63,7 +64,7 @@ void test_with_buffers()
     auto res_beg = oneapi::dpl::begin(_res_buf);
 
     // create named policy from existing one
-    auto new_policy = oneapi::dpl::execution::make_device_policy<class ExclusiveScanBySegment>(oneapi::dpl::execution::dpcpp_default);
+    auto new_policy = TestUtils::make_new_policy<class ExclusiveScanBySegment>(TestUtils::default_dpcpp_policy);
     // call algorithm
     oneapi::dpl::exclusive_scan_by_segment(new_policy, key_beg, key_end, val_beg, res_beg,
         (uint64_t)0, std::equal_to<uint64_t>(), std::plus<uint64_t>());
@@ -103,7 +104,7 @@ void test_with_usm()
     res_head[5] = 9; res_head[6] = 9; res_head[7] = 9; res_head[8] = 9; res_head[9] = 9;
 
     // call algorithm
-    auto new_policy = oneapi::dpl::execution::make_device_policy(q);
+    auto new_policy = TestUtils::make_new_policy(q);
     oneapi::dpl::exclusive_scan_by_segment(new_policy, key_head, key_head+n, val_head, res_head,
         (uint64_t)0, std::equal_to<uint64_t>(), std::plus<uint64_t>());
     q.wait();
@@ -120,7 +121,7 @@ void test_with_usm()
 
     // call algorithm on single element range
     res_head[0] = 9;
-    auto new_policy2 = oneapi::dpl::execution::make_device_policy(q);
+    auto new_policy2 = TestUtils::make_new_policy(q);
     oneapi::dpl::exclusive_scan_by_segment(new_policy2, key_head, key_head+1, val_head, res_head,
         (uint64_t)0);
 

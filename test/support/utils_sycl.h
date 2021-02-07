@@ -40,7 +40,7 @@ namespace TestUtils
 
     inline void
     print_debug(const char*
-#if _ONEDPL_DEBUG_SYCL   
+#if _ONEDPL_DEBUG_SYCL
     message
 #endif
     )
@@ -90,9 +90,9 @@ namespace TestUtils
     template <typename _NewKernelName, typename _Policy,
               oneapi::dpl::__internal::__enable_if_fpga_execution_policy<_Policy, int> = 0>
     auto
-          make_new_policy(_Policy&& __policy)
-              -> decltype(oneapi::dpl::execution::make_fpga_policy<::std::decay<_Policy>::type::unroll_factor, _NewKernelName>(
-                  ::std::forward<_Policy>(__policy)))
+    make_new_policy(_Policy&& __policy)
+        -> decltype(oneapi::dpl::execution::make_fpga_policy<::std::decay<_Policy>::type::unroll_factor, _NewKernelName>(
+            ::std::forward<_Policy>(__policy)))
     {
         return oneapi::dpl::execution::make_fpga_policy<::std::decay<_Policy>::type::unroll_factor, _NewKernelName>(
             ::std::forward<_Policy>(__policy));

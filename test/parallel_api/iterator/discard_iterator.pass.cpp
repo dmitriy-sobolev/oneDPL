@@ -23,6 +23,7 @@
 #include <cmath>
 
 #include "../../support/pstl_test_config.h"
+#include "../../support/utils.h"
 
 #if TEST_SYCL_PRESENT
 #include <CL/sycl.hpp>
@@ -91,7 +92,7 @@ void evaluate(Policy&& policy, Iterator ref_begin, Iterator ref_end,
         ref_times.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count());
 
         typename oneapi::dpl::internal::rebind_policy<policy_type, class DiscardEval>::type new_policy(policy);
-        
+
         start = clock::now();
         std::transform(std::move(new_policy), ref_begin, ref_end, dev_null, oneapi::dpl::identity{});
         stop = clock::now();
@@ -177,7 +178,7 @@ int main(int argc, char** argv) {
 #if TEST_DPCPP_BACKEND_PRESENT
     // Case 2 -- Compare traversal on accelerator
     {
-        using policy_type = decltype(oneapi::dpl::execution::dpcpp_default);
+        using policy_type = decltype(TestUtils::default_dpcpp_policy);
 
         // create buffers
         cl::sycl::buffer<uint64_t, 1> ref_buf{ cl::sycl::range<1>(n) };
@@ -199,21 +200,21 @@ int main(int argc, char** argv) {
         auto src_begin = oneapi::dpl::begin(src_buf);
         auto out_begin = oneapi::dpl::discard_iterator();
 
-        auto policy = oneapi::dpl::execution::make_device_policy<class GPULinear>(oneapi::dpl::execution::dpcpp_default);
+        auto policy = TestUtils::make_new_policy<class GPULinear>(TestUtils::default_dpcpp_policy);
 
         evaluate(policy, ref_begin, ref_end, out_begin, std::string("GPU discard"));
     }
 
     {
-        using policy_type = decltype(oneapi::dpl::execution::dpcpp_default);
+        using policy_type = decltype(TestUtils::default_dpcpp_policy);
 
         // create buffers
         cl::sycl::buffer<uint64_t, 1> mask_buf{ cl::sycl::range<1>(n) };
         cl::sycl::buffer<uint64_t, 1> src_buf{ cl::sycl::range<1>(n) };
         cl::sycl::buffer<uint64_t, 1> dst_buf{ cl::sycl::range<1>(n) };
-    
-        auto policy = oneapi::dpl::execution::make_device_policy<class GPUCopyIf>(oneapi::dpl::execution::dpcpp_default);
-        
+
+        auto policy = TestUtils::make_new_policy<class GPUCopyIf>(TestUtils::default_dpcpp_policy);
+
         {
             auto stencil = mask_buf.template get_access<cl::sycl::access::mode::write>();
             auto src = src_buf.template get_access<cl::sycl::access::mode::write>();
@@ -262,7 +263,7 @@ int main(int argc, char** argv) {
             std::cout << std::endl;
         }
 #endif
-        
+
     }
 
 	{
@@ -306,8 +307,8 @@ int main(int argc, char** argv) {
 		auto val_res_beg = oneapi::dpl::begin(val_res_buf);
 
 		// call algorithm
-		auto new_policy2 = oneapi::dpl::execution::make_device_policy<class ReduceBySegment2>(
-			oneapi::dpl::execution::dpcpp_default);
+		auto new_policy2 = TestUtils::make_new_policy<class ReduceBySegment2>(
+			TestUtils::default_dpcpp_policy);
 		auto res2 = oneapi::dpl::reduce_by_segment(new_policy2, key_beg, key_end,
 			val_beg, oneapi::dpl::discard_iterator(), val_res_beg);
 

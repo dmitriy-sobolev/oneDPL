@@ -23,6 +23,7 @@
 #include <cmath>
 
 #include "../../support/pstl_test_config.h"
+#include "../../support/utils.h"
 
 #if TEST_SYCL_PRESENT
 #include <CL/sycl.hpp>
@@ -172,7 +173,7 @@ int main(int argc, char** argv) {
 #if TEST_DPCPP_BACKEND_PRESENT
     // Case 4 -- Linear traversal on accelerator
     {
-        using policy_type = decltype(oneapi::dpl::execution::dpcpp_default);
+        using policy_type = decltype(TestUtils::default_dpcpp_policy);
 
         // create buffers
         cl::sycl::buffer<uint64_t, 1> ref_buf{ cl::sycl::range<1>(n) };
@@ -198,14 +199,14 @@ int main(int argc, char** argv) {
         auto map_begin = oneapi::dpl::begin(map_buf);
         auto perm_begin = oneapi::dpl::make_permutation_iterator(src_begin, map_begin);
 
-        auto policy = oneapi::dpl::execution::make_device_policy<class GPULinearRef>(oneapi::dpl::execution::dpcpp_default);
-        auto policy2 = oneapi::dpl::execution::make_device_policy<class GPULinear>(oneapi::dpl::execution::dpcpp_default);
+        auto policy = TestUtils::make_new_policy<class GPULinearRef>(TestUtils::default_dpcpp_policy);
+        auto policy2 = TestUtils::make_new_policy<class GPULinear>(TestUtils::default_dpcpp_policy);
         evaluate(policy, policy2, ref_begin, ref_end, perm_begin, std::string("GPU Linear"));
     }
 
     // Case 5 -- Cyclic traversal on accelerator using function object for map indices
     {
-        using policy_type = decltype(oneapi::dpl::execution::dpcpp_default);
+        using policy_type = decltype(TestUtils::default_dpcpp_policy);
 
         // create buffers
         cl::sycl::buffer<uint64_t, 1> ref_buf{ cl::sycl::range<1>(n) };
@@ -228,8 +229,8 @@ int main(int argc, char** argv) {
         auto src_begin = oneapi::dpl::begin(src_buf);
         auto perm_begin = oneapi::dpl::make_permutation_iterator(src_begin, map);
 
-        auto policy = oneapi::dpl::execution::make_device_policy<class GPUCyclicRef>(oneapi::dpl::execution::dpcpp_default);
-        auto policy2 = oneapi::dpl::execution::make_device_policy<class GPUCyclic>(oneapi::dpl::execution::dpcpp_default);
+        auto policy = TestUtils::make_new_policy<class GPUCyclicRef>(TestUtils::default_dpcpp_policy);
+        auto policy2 = TestUtils::make_new_policy<class GPUCyclic>(TestUtils::default_dpcpp_policy);
         evaluate(policy, policy2, ref_begin, ref_end, perm_begin, std::string("GPU Cyclic"));
     }
 #endif
