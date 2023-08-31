@@ -28,7 +28,7 @@ jobs:
             cxx_compiler: icpx
             std: 17
             build_type: release
-            backend: dpcpp_only
+            backend: dpcpp
             device_type: FPGA_EMU
     steps:
       - uses: actions/checkout@v3
